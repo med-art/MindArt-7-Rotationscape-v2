@@ -31,7 +31,7 @@ var x, y;
 
 var counter = 0;
 
-var colVersion = 0;
+var colVersion = -1;
 
 var toggle = 0;
 
@@ -41,20 +41,20 @@ var slider2;
 var randomness, ration, lineQty;
 
 var colours = [
-  // ['#363ED9', '#04B2D9', '#05DBF2', '#0CF2DB'],
-  // ['#F20C1F', '#0D0A07', '#D9D0C7', '#BF1515'],
-  ['#2B402B', '#D9AE79', '#BF2604', '#A68080'],
+  ['#363ED9', '#04B2D9', '#05DBF2', '#0CF2DB'],
+  ['#F20C1F', '#0D0A07', '#D9D0C7', '#BF1515'],
+  // ['#2B402B', '#D9AE79', '#BF2604', '#A68080'],
   ['#030A8C', '#4ED98A', '#F2B705', '#D93E30'],
   ['#7E6167', '#B4356B', '#06CF90', '#17EEB2'],
   ['#345573', '#F2913D', '#223240', '#F24B0F'], // I think ill be fine after eating ice cream
-  // ['#0388A6','#F299B1', '#020659', '#80BF90', '#F28705'] // Handelsblatt---All-about-money,-the-costs-of-education-1
+  ['#0388A6','#F299B1', '#020659', '#80BF90', '#F28705'], // Handelsblatt---All-about-money,-the-costs-of-education-1
   ['#F2F2F2', '#A6A6A6', '#737373', '#0D0D0D', '#404040'], // Unchained
-  // ['#A6886D', '#F2E0D0', '#402E27', '#F29D52', '#221F26'], // the Planets
-  // ['#BF4B8B', '#3981BF', '#1F628C', '#590808', '#D92929'], // adidas-Telstar-50-anniversary
+  ['#A6886D', '#F2E0D0', '#402E27', '#F29D52', '#221F26'], // the Planets
+  ['#BF4B8B', '#3981BF', '#1F628C', '#590808', '#D92929'], // adidas-Telstar-50-anniversary
   ['#A64456', '#422A59', '#F2B366', '#D9BBA0', '#D96D55'], // Lettering-Love
-  // ['#F24452', '#5CE3F2', '#F2E205', '#F2CB05', '#F29D35'], // People-of-The-Internet
+  ['#F24452', '#5CE3F2', '#F2E205', '#F2CB05', '#F29D35'], // People-of-The-Internet
   ['#D9A74A', '#BF6E3F', '#A67563', '#BFA095', '#BF4141'], // Sparkling-Botanicals-1'
-  // ['#F27EA9', '#05AFF2', '#F2B705', '#F29F05', '#F2541B'] // Lettering-Series-XXII-1
+  ['#F27EA9', '#05AFF2', '#F2B705', '#F29F05', '#F2541B'] // Lettering-Series-XXII-1
 ];
 
 function start() {
@@ -71,6 +71,9 @@ function setup() {
   ui.stroke(120, 50);
   ui.strokeWeight(10);
   ui.noFill();
+
+  drawing.blendMode(BLEND);// OVERLAY 8 // SCREEN 10, MULTIPLY 7, BLEND 9,
+
 }
 
 function windowResized(){
@@ -111,7 +114,11 @@ function windowResized(){
 function reset(){
 
 
-  colVersion = floor(random(0,colours.length))
+  colVersion++;
+  if (colVersion == colours.length){
+    colVersion = 0;
+
+  }
   background(colours[colVersion][3]);
   $(".box").remove();
   createSwatch();
@@ -119,7 +126,7 @@ function reset(){
   drawing.clear();
 
   rad = height / 10; // compute radius for central circle
-  background(30, 60, 60); // clear the screen
+
 
   for (var i = 0; i < sines.length; i++) {
     sines[i] = PI; // start EVERYBODY facing NORTH
@@ -141,7 +148,10 @@ function reset(){
 
 
 function toggleStyle(){
-  toggle = !toggle;
+  toggle++;
+  if (toggle > 2){
+    toggle = 0;
+  }
 }
 function touchMoved() {
 
@@ -183,9 +193,12 @@ function touchMoved() {
     background(colours[colVersion][3]);
     image(drawing, 0, 0, width, height);
     image(ui, 0, 0, width, height);
-    text(rotationTotal, 10, 1000);
-    text(currentPos, 10, 1040);
     counter++ // keeps track of how many points crossed
+    fill(255);
+    blendMode(DIFFERENCE);
+    textSize(width / 50);
+    text("colour set " + colVersion, width - (width / 5), height / 10);
+    blendMode(BLEND);
 
 }
 
@@ -214,14 +227,17 @@ function triggerNewDraw(){
     var radius = r / (i + 1); // radius for circle itself
     var theta = sines[i];
 
-    if (toggle){
-    drawingStyle1(radius, theta, i, x0, y0, 1, 5, 100);
+    if (toggle == 0){
+    drawingStyle1(radius, theta, i, x0, y0, 1, 1, 20);
+  } else if (toggle == 1){
+      drawingStyle2(radius, theta, i, x0, y0, 1, 18, 200);
+  } else if (toggle ==  2) {
+    drawingStyle3(radius, theta, i, x0, y0, 1, 18, 200)
   } else {
-      drawingStyle2(radius, theta, i, x0, y0, 1, 50, 100);
+    drawingStyle4(radius, theta, i, x0, y0, 1, 4, 200)
   }
 
-    drawing.strokeWeight(10);
-    drawing.strokeWeight(2);
+
     sines[i] = (currentPos) * ratio;
 
     // sines[i] = (sines[i] + (fund + (fund * i * ratio))) % TWO_PI; // update angle based on fundamental
@@ -236,10 +252,9 @@ function drawingStyle1(radius, theta, i, x0, y0, aplha, randomness, lineQty ){
     var y1 = ((radius + (randomness * rn[j])) * sin(theta)) + y0;
     var w2 = width / 2;
     var h2 = height / 2;
-    drawing.strokeWeight(random(0.1,radius/40));
     if (counter > 1){
     drawing.line(x1 + w2, y1 + h2, (xPrev[j]) + w2, (yPrev[j]) + h2);
-      drawing.strokeWeight(random(0.1,radius/1000));
+    drawing.strokeWeight(2);
 
   }
     if (xPrev[j] != x1){
@@ -257,15 +272,15 @@ function drawingStyle1(radius, theta, i, x0, y0, aplha, randomness, lineQty ){
 
 function drawingStyle2(radius, theta, i, x0, y0, aplha, randomness, lineQty ){
   for (var j = 0; j < lineQty; j++) {
-    // rn[j] = random(-1, 1);
+    rn[j] = randomGaussian(-1, 1);
     var x1 = ((radius + (randomness * rn[j])) * cos(theta)) + x0;
     var y1 = ((radius + (randomness * rn[j])) * sin(theta)) + y0;
     var w2 = width / 2;
     var h2 = height / 2;
-    drawing.strokeWeight(random(0.1,radius/40));
+
     if (counter > 1){
     drawing.line(x1 + w2, y1 + h2, (xPrev[j]) + w2, (yPrev[j]) + h2);
-      drawing.strokeWeight(random(0.1,radius/1000));
+      drawing.strokeWeight(random(0.1,0.1*sqrt(radius)));
 
   }
     if (xPrev[j] != x1){
@@ -282,65 +297,24 @@ function drawingStyle2(radius, theta, i, x0, y0, aplha, randomness, lineQty ){
 }
 
 
-function drawingStyle3(radius, theta, i, x0, y0, aplha, randomness, lineQty){
-      var x1 = (radius * cos(theta)) + x0;
-    var y1 = (radius * sin(theta)) + y0;
+function drawingStyle3(radius, theta, i, x0, y0, aplha, randomness, lineQty ){
+  for (var j = 0; j < lineQty; j++) {
+    // rn[j] = random(-1, 1);
+    var x1 = ((radius + (randomness * rn[j])) * cos(theta)) + x0;
+    var y1 = ((radius + (randomness * rn[j])) * sin(theta)) + y0;
     var w2 = width / 2;
     var h2 = height / 2;
-
-
-  let v1 = createVector(x1 + w2, y1 + h2);
-  let v2 = createVector((xPrev[0]) + w2, (yPrev[0]) + h2);
-
-  for (let i = 0; i < 10; i++){
-    let rX = randomGaussian(-radius/10,radius/10);
-    let rY = randomGaussian(-radius/10, radius/10);
-    let v3 = p5.Vector.lerp(v1, v2, 0);
-    drawing.fill(colSel);
-    drawing.noStroke();
-    var rd = random(0, radius/5);
-    drawing.ellipse(v3.x+rX, v3.y+rY, rd, rd);
-
-  }
-
-
-
-
-    if (xPrev[0] != x1){
-    xPrev[0] = x1;
-    yPrev[0] = y1;
-  }
-
-  // ui
-  ui.clear();
-  ui.line(width / 2, height / 2, x0 + width / 2, y0 + height / 2);
-  ui.line(x1 + w2, y1 + h2, x0 + w2, y0 + h2);
-  ui.ellipse(width / 2 + x0, height / 2 + y0, 5, 5);
-  ui.ellipse(width / 2, height / 2, r * 2, r * 2);
-}
-
-
-function drawingStyle4(radius, theta, i, x0, y0){
-    var x1 = (radius * cos(theta)) + x0;
-    var y1 = (radius * sin(theta)) + y0;
-    var w2 = width / 2;
-    var h2 = height / 2;
-    var x2 = ((0.1*radius) * cos(theta)) + x0;
-    var y2 = ((0.1*radius) * sin(theta)) + y0;
-
 
     if (counter > 1){
-    drawing.line(x1 + w2, y1 + h2, w2, h2);
+    drawing.line(x1 + w2, y1 + h2, (xPrev[j]) + w2, (yPrev[j]) + h2);
+      drawing.strokeWeight(random(0.1,0.1*sqrt(radius)));
+
   }
-
-
-
-
-    if (xPrev[0] != x1){
-    xPrev[0] = x1;
-    yPrev[0] = y1;
+    if (xPrev[j] != x1){
+    xPrev[j] = x1;
+    yPrev[j] = y1;
   }
-
+  }
   // ui
   ui.clear();
   ui.line(width / 2, height / 2, x0 + width / 2, y0 + height / 2);
@@ -348,6 +322,7 @@ function drawingStyle4(radius, theta, i, x0, y0){
   ui.ellipse(width / 2 + x0, height / 2 + y0, 5, 5);
   ui.ellipse(width / 2, height / 2, r * 2, r * 2);
 }
+
 
 function touchStarted() {
 
