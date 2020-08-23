@@ -35,6 +35,8 @@ var colVersion = 0;
 
 var toggle = 0;
 
+var slider2;
+
 
 var randomness, ration, lineQty;
 
@@ -55,58 +57,66 @@ var colours = [
   // ['#F27EA9', '#05AFF2', '#F2B705', '#F29F05', '#F2541B'] // Lettering-Series-XXII-1
 ];
 
+function start() {
+  $(".startBtn").remove();
+  fullscreen(1);
+  // note currently everything resets on windowResized. Unsure if this is logical yet
+}
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  dimensionCalc();
-
-
-    button = createButton('Drawing Style');
-    button.position(40, height-(6.5*vMax));
-    button.mouseClicked(toggleStyle);
-    button.class("select");
-    button.id("toggle");
-    button.style('font-size', '2.6vmax');
-    button.style('height', '4.5vmax');
-
-    restartBtn = createButton('Restart');
-    restartBtn.position(width - (14*vMax), height-(6.5*vMax));
-    restartBtn.mouseClicked(restart);
-    restartBtn.class("select");
-    restartBtn.id("restart");
-    restartBtn.style('font-size', '2.6vmax');
-    restartBtn.style('height', '4.5vmax');
-
-
   drawing = createGraphics(width, height);
   ui = createGraphics(width, height);
   ui.stroke(120, 50);
   ui.strokeWeight(10);
   ui.noFill();
+}
+
+function windowResized(){
+  resizeCanvas(windowWidth, windowHeight);
+
+  dimensionCalc();
+
+    $("#toggle").remove();
+        $("#restart").remove();
+            $("#slider").remove();
+
+      button = createButton('Toggle');
+      button.position(40, height-(6.5*vMax));
+      button.mouseClicked(toggleStyle);
+      button.class("select");
+      button.id("toggle");
+      button.style('font-size', '2.6vmax');
+      button.style('height', '4.5vmax');
+
+      restartBtn = createButton('Restart');
+      restartBtn.position(width - (14*vMax), height-(6.5*vMax));
+      restartBtn.mouseClicked(reset);
+      restartBtn.class("select");
+      restartBtn.id("restart");
+      restartBtn.style('font-size', '2.6vmax');
+      restartBtn.style('height', '4.5vmax');
+
+      slider2 = createSlider(120, 621, 240); // density
+      slider2.position(10, 150);
+      slider2.style('width', '300px');
+      slider2.id("slider");
 
 
+  reset();
+
+}
+
+function reset(){
 
 
-  slider2 = createSlider(120, 621, 240); // density
-  // slider3 = createSlider(1, 1000, 10); // brush randomLines
-  // slider4 = createSlider(0, 100, 1); // random
-
-  //
-  // text('ratio', 10, 130);
-  slider2.position(10, 150);
-  // text('lineDensity', 10, 230);
-  // slider3.position(10, 250);
-  // text('lineSpread', 10, 330);
-  // slider4.position(10, 350);
-  // text('lineWidth', 10, 430);
-  //
-  //
-  slider2.style('width', '300px');
-  // slider3.style('width', '300px');
-  // slider4.style('width', '300px');
-
-    createSwatch();
-
+  colVersion = floor(random(0,colours.length))
+  background(colours[colVersion][3]);
+  $(".box").remove();
+  createSwatch();
+  //changeCol(2);
+  drawing.clear();
 
   rad = height / 10; // compute radius for central circle
   background(30, 60, 60); // clear the screen
@@ -126,9 +136,6 @@ function setup() {
 
   drawing.strokeWeight(sW);
   drawing.noFill(); // don't fill
-
-
-
 }
 
 
@@ -160,30 +167,28 @@ function touchMoved() {
   rotationTotal = rotationTotal + c;
 
 
-}
 
-function draw() {
-
-  if (currentPos < (rotationTotal - fund)) {
-    currentPos += fund / 2;
-    triggerNewDraw();
-  } else if (currentPos > (rotationTotal + fund)) {
-    currentPos -= fund / 2;
-    triggerNewDraw();
-  } else {
-    // currentPos = rotationTotal;
-    currentPos = currentPos;
-  }
+    if (currentPos < (rotationTotal - fund)) {
+      currentPos += fund / 2;
+      triggerNewDraw();
+    } else if (currentPos > (rotationTotal + fund)) {
+      currentPos -= fund / 2;
+      triggerNewDraw();
+    } else {
+      // currentPos = rotationTotal;
+      currentPos = currentPos;
+    }
 
 
-  background(colours[colVersion][3]);
-  image(drawing, 0, 0, width, height);
-  image(ui, 0, 0, width, height);
-  text(rotationTotal, 10, 1000);
-  text(currentPos, 10, 1040);
-  counter++ // keeps track of how many points crossed
+    background(colours[colVersion][3]);
+    image(drawing, 0, 0, width, height);
+    image(ui, 0, 0, width, height);
+    text(rotationTotal, 10, 1000);
+    text(currentPos, 10, 1040);
+    counter++ // keeps track of how many points crossed
 
 }
+
 
 function triggerNewDraw(){
     x = r * cos(currentPos);
@@ -387,15 +392,6 @@ function touchEnded() {
   counter = 0;
 }
 
-function restart() {
-  drawing.clear();
-  colVersion = floor(random(0,colours.length))
-  background(colours[colVersion][3]);
-  $(".box").remove();
-  createSwatch();
-  changeCol(2);
-}
-
 
 
 function colorAlpha(aColor, alpha) {
@@ -452,9 +448,5 @@ function dimensionCalc() {
 }
 
 function changeDrawingStyle(){
-
-}
-
-function reset(){
 
 }
